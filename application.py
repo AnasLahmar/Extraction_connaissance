@@ -24,7 +24,7 @@ def confusion(y_test, y_pred):
     cm = confusion_matrix(y_test, y_pred)
     cm_matrix = pd.DataFrame(data=cm, columns=['Actual Positive:1', 'Actual Negative:0'], 
                                     index=['Predict Positive:1', 'Predict Negative:0'])
-    fig=plt.figure(figsize=(5,15))
+    fig=plt.figure(figsize=(5,5))
     sns.heatmap(cm_matrix, annot=True, fmt='d', cmap='YlGnBu')        
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.pyplot(fig)
