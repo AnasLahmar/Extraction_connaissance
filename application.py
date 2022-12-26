@@ -150,7 +150,7 @@ if selected=="Decision Algorithms":
         #####
         st.success("Dataset has selected successfully")
          # define Button style  
-        algorithm=st.selectbox("Choose an algorithm",("Select an Algorithm","Logistic Regression","SVM"))
+        algorithm=st.selectbox("Choose an algorithm",("Select an Algorithm","Logistic Regression","SVM","Random Forest","KNN"))
         if algorithm=="Logistic Regression":
             st.write(''' ### Adjust some parameters of Logistic Regression model ''')
             st.info("The parameter C: Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive and smaller value specify stronger regularization.")
