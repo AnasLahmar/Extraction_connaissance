@@ -154,9 +154,9 @@ if selected=="Decision Algorithms":
         if algorithm=="Logistic Regression":
             st.write(''' ### Adjust some parameters of Logistic Regression model ''')
             st.info("The parameter C: Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive and smaller value specify stronger regularization.")
-            c = st.slider("Select : ", 1, 100, 20)
+            c = st.slider("C : ", 1, 100, 20)
             st.info("penalty :Specify the norm of the penalty")
-            pl=st.selectbox("Choose the kernel",('none', "l2"))
+            pl=st.selectbox("Penalty : ",('none', "l2"))
             m = st.markdown("""
             <style>
             div.stButton > button:first-child {
@@ -178,15 +178,16 @@ if selected=="Decision Algorithms":
                 y_pred=model.predict(X_test)
                 # compute and print accuracy score
                 st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                if st.checkbox("Show Confusion Matrix"):
-                    confusion(y_test, y_pred)
+
+                st.info("Show Confusion Matrix")
+                confusion(y_test, y_pred)
         if algorithm=="SVM":
             # instantiate classifier with default hyperparameters
             st.write(''' ### Adjust some parameters of SVM model ''')
             st.info("The parameter C: Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive and smaller value specify stronger regularization.")
-            C = st.slider("Select : ", 1, 100, 25)
+            C = st.slider("C : ", 1, 100, 25)
             st.info("Specifies the kernel type to be used in the algorithm.")
-            kernel=st.selectbox("Choose the kernel",('linear', 'poly', 'rbf', 'sigmoid', 'precomputed'))
+            kernel=st.selectbox("kernel",('linear', 'poly', 'rbf', 'sigmoid'))
             m = st.markdown("""
             <style>
             div.stButton > button:first-child {
@@ -207,14 +208,14 @@ if selected=="Decision Algorithms":
                 y_pred=model.predict(X_test)
                 # compute and print accuracy score
                 st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                if st.checkbox("Show Confusion Matrix"):
-                    confusion(y_test, y_pred)
+                st.info("Show Confusion Matrix")
+                confusion(y_test, y_pred)
         if algorithm=="Random Forest":
             st.write(''' ### Adjust some parameters of Random Forest model ''')
             st.info("n_estimators: The number of trees in the forest.")
-            n_estimators= st.slider("Select : ", 1, 200, 100)
+            n_estimators= st.slider("n_estimators : ", 1, 200, 100)
             st.info("criterion: The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “log_loss” and “entropy” both for the Shannon information gain")
-            criterion=st.selectbox("Choose the kernel",('gini', 'entropy', 'rbf', 'log_loss'))
+            criterion=st.selectbox("criterion: ",('gini', 'entropy', 'rbf', 'log_loss'))
             m = st.markdown("""
             <style>
             div.stButton > button:first-child {
@@ -236,12 +237,12 @@ if selected=="Decision Algorithms":
                 y_pred=model.predict(X_test)
                 # compute and print accuracy score
                 st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                if st.checkbox("Show Confusion Matrix"):
-                    confusion(y_test, y_pred)
+                st.info("Show Confusion Matrix")
+                confusion(y_test, y_pred)
         if algorithm=="KNN":
             st.write(''' ### Adjust some parameters of KNN model ''')
             st.info("n_neighbors: Number of neighbors to use by default for kneighbors queries.")
-            K= st.slider("Select : ", 1, 10, 5)
+            K= st.slider("n_neighbors: ", 1, 10, 5)
             # instantiate classifier with default hyperparameters
             #=============================================================================   
             m = st.markdown("""
@@ -264,8 +265,8 @@ if selected=="Decision Algorithms":
                 y_pred=model.predict(X_test)
                 # compute and print accuracy score
                 st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                if st.checkbox("Show Confusion Matrix"):
-                    confusion(y_test, y_pred)
+                st.info("Show Confusion Matrix")
+                confusion(y_test, y_pred)
 
 
     else:
