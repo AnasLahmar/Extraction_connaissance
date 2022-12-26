@@ -77,7 +77,7 @@ if selected=="Data Overview":
         def load_lottiefile(filepath: str):
                 with open(filepath, "r") as f:
                     return json.load(f)
-        lottie_coding = load_lottiefile("accessoires\lottie2.json")  # replace link to local lottie file
+        lottie_coding = load_lottiefile("lottie2.json")  # replace link to local lottie file
         st_lottie(lottie_coding,speed=1,reverse=False,loop=True,quality="high",height=None, width=None, key=None,)
     # Chose csv file
     st.sidebar.title("Select Your Dataset")
@@ -135,7 +135,7 @@ if selected=="Decision Algorithms":
         def load_lottiefile(filepath: str):
                 with open(filepath, "r") as f:
                     return json.load(f)
-        lottie_coding = load_lottiefile("accessoires\lottie2.json")  # replace link to local lottie file
+        lottie_coding = load_lottiefile("lottie2.json")  # replace link to local lottie file
         st_lottie(lottie_coding,speed=1,reverse=False,loop=True,quality="high",height=None, width=None, key=None,)
     # Chose csv file
     st.sidebar.title("Select Your Dataset")
