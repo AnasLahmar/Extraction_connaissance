@@ -270,7 +270,7 @@ if selected=="Decision Algorithms":
 
 
     else:
-        st.info("Select your Dataset that contains NUMERICAL VALUE or ENCODED Variable")
+        st.info("Select your Dataset that contains NUMERICAL VALUE or ENCODED Variables")
         
         
 
