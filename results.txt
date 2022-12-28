@@ -1,8 +1,0 @@
-Accuracy: 99.32126696832579 % on 442 instances 
-
-Labels: ['no' 'yes'] 
-
-Confusion matrix: [[419, 0], [3, 20]] 
-
-Precision: 100.0 %, Recall: 99.2891 %, F1: 99.6433 % 
-

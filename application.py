@@ -86,7 +86,7 @@ if selected=="Data Overview":
         data=pd.read_csv(upload_file)
         data.to_csv('data.csv', index=False)
         st.success("Dataset has selected successfully")
-        st.info("This part is useful when we use the data that contains a variable value and it helps to discover the dataset and gives us a general information ")
+        st.info("This part is useful when we use the data that contains a variable value and it helps to discover it and gives us a general information ")
         if st.checkbox("Discover your Data") :
             st.write(""" ## Discover your Data :""")
             radiodicover=st.radio("",("Shape","Columns Name","Description","Missing Value"))
@@ -271,7 +271,7 @@ if selected=="Decision Algorithms":
 
 
     else:
-        st.info("Select your Dataset")
+        st.info("Select your Dataset that contains NUMERICAL VALUE or ENCODED Variable")
         
         
 
