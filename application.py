@@ -1,5 +1,4 @@
 import streamlit as st
-import AllFunctions as all
 import seaborn as sns
 import json
 from streamlit_lottie import st_lottie
