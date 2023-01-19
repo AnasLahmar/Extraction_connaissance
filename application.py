@@ -194,7 +194,7 @@ if selected=="Clustering":
                     #Load Data
                     pca = PCA(2)
                     #Transform the data
-                    x = pca.fit_transform(x_train)
+                    x = pca.fit_transform(x)
                     st.success(x.shape)
                     #Initialize the class object
                     kmeans = KMeans(n_clusters= 2)
@@ -213,10 +213,7 @@ if selected=="Clustering":
                     plt.show()
                     st.pyplot(fig)
  
-#Transform the data
-df = pca.fit_transform(x_train)
- 
-df.shape
+
 
                         
          #==============================================Method: DBSCAN=====================================================   
