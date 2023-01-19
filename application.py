@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
-from sklearn.metrics import accuracy_score
+from sklearn.decomposition import PCA
 import allfunction as all
 
 #==============================================Start=============================================================
@@ -188,6 +188,36 @@ if selected=="Clustering":
                     plt.legend()
                     plt.show()
                     st.pyplot(fig)
+                
+                st.info("If we use the Data with a large number of attributes it useful to use PCA (ex: Bank-data), we will use PCA with two compenents")
+                if st.checkbox("Applying PCA"):
+                    #Load Data
+                    pca = PCA(2)
+                    #Transform the data
+                    x = pca.fit_transform(x_train)
+                    st.success(x.shape)
+                    #Initialize the class object
+                    kmeans = KMeans(n_clusters= 2)
+                    #predict the labels of clusters.
+                    label = kmeans.fit_predict(x)
+                    # Centroids
+                    centroids = kmeans.cluster_centers_ 
+                    u_labels = np.unique(label)
+                    #plotting the results:
+                    fig=plt.figure(figsize=(4,4))
+                    for i in u_labels:
+                        plt.scatter(x[label == i , 0] , x[label == i , 1] , label = i)
+                        st.set_option('deprecation.showPyplotGlobalUse', False)
+                    plt.scatter(centroids[:,0] , centroids[:,1] , s = 80, color = 'k')
+                    plt.legend()
+                    plt.show()
+                    st.pyplot(fig)
+ 
+#Transform the data
+df = pca.fit_transform(x_train)
+ 
+df.shape
+
                         
          #==============================================Method: DBSCAN=====================================================   
         if algorithm=="DBSCAN":
