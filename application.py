@@ -1,41 +1,23 @@
 import streamlit as st
-import seaborn as sns
 import json
 from streamlit_lottie import st_lottie
 from streamlit_option_menu import option_menu
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from chefboost import Chefboost as chef
-import pandas as pd
 import numpy as np 
 import pandas as pd 
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-# visualize confusion matrix with seaborn heatmap
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
-def confusion(y_test, y_pred):
-    cm = confusion_matrix(y_test, y_pred)
-    cm_matrix = pd.DataFrame(data=cm, columns=['Actual Positive:1', 'Actual Negative:0'], 
-                                    index=['Predict Positive:1', 'Predict Negative:0'])
-    fig=plt.figure(figsize=(4,4))
-    sns.heatmap(cm_matrix, annot=True, fmt='d', cmap='YlGnBu')        
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot(fig)
+from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import accuracy_score
+import allfunction as all
 
-
-
-# Interface
-st.title("Extraction de connaissances")
+#==============================================Start=============================================================
+# Interface Application------------------------------------------------------------------------------------------
+st.write(""" ## Extraction de connaissances: Clustering""")
 
 selected=option_menu(
     menu_title="Main Menu",
-    options=["Home","Data Overview","Decision Algorithms"],
+    options=["Home","Data Overview","Clustering"],
     icons=["house","bar-chart"],
     menu_icon="cast",  # optional
     default_index=0,
@@ -46,17 +28,14 @@ selected=option_menu(
 
      )
    
-#==================================================================================================================
 
-    # Accueil
+#========================================================Accueil===========================================
 if selected=="Home":
-
-    st.write("Cette application permet de faire une visualisation de votre jeu de données et d'appliquer les différents algorithmes de classification comme Logistic Regression, SVM, Random Forest et KNN, puis visualiser leurs performances.")
     # creer une animation
     def load_lottiefile(filepath: str):
         with open(filepath, "r") as f:
             return json.load(f)
-    lottie_coding = load_lottiefile("loteri.json")  # replace link to local lottie file
+    lottie_coding = load_lottiefile("pc.json")  # replace link to local lottie file
     st_lottie(
     lottie_coding,
     speed=1,
@@ -68,7 +47,7 @@ if selected=="Home":
     width=None,
     key=None,
 )
-
+#======================================================Data Overview=======================================
 if selected=="Data Overview":
     with st.sidebar:
     # creer une animation
@@ -78,24 +57,28 @@ if selected=="Data Overview":
                     return json.load(f)
         lottie_coding = load_lottiefile("lottie2.json")  # replace link to local lottie file
         st_lottie(lottie_coding,speed=1,reverse=False,loop=True,quality="high",height=None, width=None, key=None,)
-    # Chose csv file
+    # Chose csv file------------------------------------------------------------------------------------------
     st.sidebar.title("Select Your Dataset")
     upload_file=st.sidebar.file_uploader("Select:",type=["csv"])
     if upload_file is not None:
         data=pd.read_csv(upload_file)
         data.to_csv('data.csv', index=False)
         st.success("Dataset has selected successfully")
-        st.info("This part is useful when we use the data that contains a variable value and it helps to discover it and gives us a general information ")
+         ##### Encodding------------------------------------------------------------------------------------------
+        st.info("An attribute will be Encoded if it contains nominal values")
+        df=all.encoder(data)
         if st.checkbox("Discover your Data") :
             st.write(""" ## Discover your Data :""")
-            radiodicover=st.radio("",("Shape","Columns Name","Description","Missing Value"))
+            radiodicover=st.radio("",("Before encoding","After encoding","Shape","Description","Missing Value"))
+            if radiodicover=="Before encoding":
+                st.write(""" ### Results : """)
+                st.write(data.head(data.shape[0]))
+            if radiodicover=="After encoding":
+                st.write(""" ### Results : """)
+                st.write(df.head(data.shape[0]))
             if radiodicover=="Shape":
                 st.write(""" ### Results : """)
                 st.success(data.shape)
-            if radiodicover=="Columns Name":
-                st.write(""" ### Results : """)
-                st.success(data.columns)
-                st.write(data.info)
             if radiodicover=="Description":
                 st.write(""" ### Results : """)
                 st.write(data.describe())
@@ -107,13 +90,14 @@ if selected=="Data Overview":
             if radio_vis=="Heat Map":
                 data=pd.read_csv("data.csv")
                 fig, ax = plt.subplots()
-                heatmap = sns.heatmap(data.corr(), vmin=-1, vmax=1, annot=True)
+                heatmap = sns.heatmap(df.corr(), vmin=-1, vmax=1, annot=True)
                 heatmap.set_title('Correlation Heatmap', fontdict={'fontsize':12}, pad=12)
                 st.pyplot(fig)
             if radio_vis=="Plot":
                 data=pd.read_csv("data.csv")
-                df=data.select_dtypes(include='number')
-                st.write(data.shape)
+                df=all.encoder(data)
+                df=df.select_dtypes(include='number')
+                st.write(df.shape)
                 st.write("""## Visualize the relation between data variables """)
                 st.write("""### X_features """)
                 x=st.selectbox("Variables !",df.columns)
@@ -127,8 +111,8 @@ if selected=="Data Overview":
         
     else:
         st.info("Select your Dataset")
-        
-if selected=="Decision Algorithms":
+#==============================================Clustering=======================================================
+if selected=="Clustering":
     with st.sidebar:
     # creer une animation
     # Creer un slider
@@ -143,136 +127,107 @@ if selected=="Decision Algorithms":
     if upload_file is not None:
         data=pd.read_csv(upload_file)
         data.to_csv('data.csv', index=False)
-        ##### SPLITTING
-        X=data.iloc[:,0:-1]
-        y=data.iloc[:,-1]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-        #####
+        #### 
         st.success("Dataset has selected successfully")
-         # define Button style  
-        algorithm=st.selectbox("Choose an algorithm",("Select an Algorithm","Logistic Regression","SVM","Random Forest","KNN"))
-        if algorithm=="Logistic Regression":
-            st.write(''' ### Adjust some parameters of Logistic Regression model ''')
-            st.info("The parameter C: Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive and smaller value specify stronger regularization.")
-            c = st.slider("C : ", 1, 100, 20)
-            st.info("penalty :Specify the norm of the penalty")
-            pl=st.selectbox("Penalty : ",('none', "l2"))
-            m = st.markdown("""
-            <style>
-            div.stButton > button:first-child {
-                background-color: #0099ff;
-                color:#ffffff;
-            }
-            div.stButton > button:hover {
-                background-color: #00ff00;
-                color:#ff0000;
-                }
-            </style>""", unsafe_allow_html=True)
-            button2=st.button("Appliquer le modèle")
-            if button2:
-                # instantiate classifier with default hyperparameters
-                model=LogisticRegression(penalty=str(pl),C=c)
-                # fit classifier to training set
-                model.fit(X_train,y_train)
-                # make predictions on test set
-                y_pred=model.predict(X_test)
-                # compute and print accuracy score
-                st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+        
+        ##### Encodding------------------------------------------------------------------------------------------
+        st.write(""" ### Data Encoding 
+        """)
+        df=all.encoder(data)
+        if st.checkbox("Show the Data after encoding"):
+            st.success(df.shape)
+            st.write(df)
+        ##### Netoyage de données------------------------------------------------------------------------------------------
+        st.write(""" ### Data preporcessing 
+        """)
+        st.info("The idea of this part of this widget bellow is to delete the missing value to can use method of clustering, and delete some attributes like: (class, id...) who should not participate when applying the method")
+        if st.checkbox("Drop missing Value"):
+            df= df.dropna()
+            st.success(df.shape)
+        if st.checkbox("Drop columns"):
+            supprimer=st.multiselect('Select the attribute(s) to drop from the data',df.columns)
+            if supprimer:
+                df = df.drop(supprimer, axis=1)
+                if st.checkbox("Show the Data after droping the attrubuts wanted"):
+                    st.success(df.shape)
+                    st.write(df)
+        #####
+        #### Algorithms  ------------------------------------------------------------------------------------------
+        st.write(""" ### Clustering""")      
+        algorithm=st.selectbox("Choose an algorithm",("Select an Algorithm","Kmeans","DBSCAN"))
+        #==================================================Methods Kmeans =====================================================
+        if algorithm=="Kmeans":
+            st.info("The parameter n_clusters: The number of clusters in your Data")
+            n_clusters = st.slider("n_clusters : ", 1, 10, 3)
+            #Initialize the class object
+            model = KMeans(n_clusters).fit(df)
+            if st.checkbox("The centroides of each cluster"):
+                st.write(model.cluster_centers_)
+            #predict the labels of clusters.
+            label = model.fit_predict(df)
+            if st.checkbox('Show labels of each instance'):    
+                st.success(label)
 
-                st.info("Show Confusion Matrix")
-                confusion(y_test, y_pred)
-        if algorithm=="SVM":
+            if st.checkbox("Show the results"):
+                a=st.selectbox("X:",df.columns)
+                b=st.selectbox("Y:",df.columns)
+                x=pd.DataFrame([df[a], df[b]]).transpose()
+                x=x.to_numpy()
+                #Getting unique labels
+                centroids = model.cluster_centers_ 
+                index_no = [df.columns.get_loc(a),df.columns.get_loc(b)]
+                u_labels = np.unique(label)
+                #plotting the results:
+                if st.checkbox("Show the plot"):
+                    fig=plt.figure(figsize=(4,4))
+                    for i in u_labels:
+                        plt.scatter(x[label == i , 0] , x[label == i , 1] , label = i)
+                        st.set_option('deprecation.showPyplotGlobalUse', False)
+
+                    plt.scatter(centroids[:,index_no[0]] , centroids[:,index_no[1]] , s = 80, color = 'k')
+                    plt.legend()
+                    plt.show()
+                    st.pyplot(fig)
+                        
+         #==============================================Method: DBSCAN=====================================================   
+        if algorithm=="DBSCAN":
             # instantiate classifier with default hyperparameters
-            st.write(''' ### Adjust some parameters of SVM model ''')
-            st.info("The parameter C: Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive and smaller value specify stronger regularization.")
-            C = st.slider("C : ", 1, 100, 25)
-            st.info("Specifies the kernel type to be used in the algorithm.")
-            kernel=st.selectbox("kernel",('linear', 'poly', 'rbf', 'sigmoid'))
-            m = st.markdown("""
-            <style>
-            div.stButton > button:first-child {
-                background-color: #0099ff;
-                color:#ffffff;
-            }
-            div.stButton > button:hover {
-                background-color: #00ff00;
-                color:#ff0000;
-                }
-            </style>""", unsafe_allow_html=True)
-            button2=st.button("Appliquer le modèle")
-            if button2:
-                model=SVC(kernel=str(kernel),C=C)
-                # fit classifier to training set
-                model.fit(X_train,y_train)
-                # make predictions on test set
-                y_pred=model.predict(X_test)
-                # compute and print accuracy score
-                st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                st.info("Show Confusion Matrix")
-                confusion(y_test, y_pred)
-        if algorithm=="Random Forest":
-            st.write(''' ### Adjust some parameters of Random Forest model ''')
-            st.info("n_estimators: The number of trees in the forest.")
-            n_estimators= st.slider("n_estimators : ", 1, 200, 100)
-            st.info("criterion: The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “log_loss” and “entropy” both for the Shannon information gain")
-            criterion=st.selectbox("criterion: ",('gini', 'entropy', 'rbf', 'log_loss'))
-            m = st.markdown("""
-            <style>
-            div.stButton > button:first-child {
-                background-color: #0099ff;
-                color:#ffffff;
-            }
-            div.stButton > button:hover {
-                background-color: #00ff00;
-                color:#ff0000;
-                }
-            </style>""", unsafe_allow_html=True)
-            button2=st.button("Appliquer le modèle")
-            if button2:
-                # instantiate classifier with default hyperparameters
-                model=RandomForestClassifier(n_estimators=n_estimators,criterion=str(criterion))
-                # fit classifier to training set
-                model.fit(X_train,y_train)
-                # make predictions on test set
-                y_pred=model.predict(X_test)
-                # compute and print accuracy score
-                st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                st.info("Show Confusion Matrix")
-                confusion(y_test, y_pred)
-        if algorithm=="KNN":
-            st.write(''' ### Adjust some parameters of KNN model ''')
-            st.info("n_neighbors: Number of neighbors to use by default for kneighbors queries.")
-            K= st.slider("n_neighbors: ", 1, 10, 5)
-            # instantiate classifier with default hyperparameters
-            #=============================================================================   
-            m = st.markdown("""
-            <style>
-            div.stButton > button:first-child {
-                background-color: #0099ff;
-                color:#ffffff;
-            }
-            div.stButton > button:hover {
-                background-color: #00ff00;
-                color:#ff0000;
-                }
-            </style>""", unsafe_allow_html=True)         
-            button2=st.button("Appliquer le modèle")
-            if button2:
-                model=KNeighborsClassifier(n_neighbors=K)
-                # fit classifier to training set
-                model.fit(X_train,y_train)
-                # make predictions on test set
-                y_pred=model.predict(X_test)
-                # compute and print accuracy score
-                st.success('Model accuracy score is: {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
-                st.info("Show Confusion Matrix")
-                confusion(y_test, y_pred)
+            st.write(""" ### Choise the parameteres
+            """)
+            eps = st.slider("eps (rayon): ", 0.0,10.0 , 0.3)
+            min_samples = st.slider("min_samples : ", 1, 15, 3)
+            clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(df)
+            DBSCAN_dataset = df.copy()
+            DBSCAN_dataset.loc[:,'Cluster'] = clustering.labels_ 
+            labels=clustering.labels_ 
+            n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0) # Number of clusters
+            
+            if st.checkbox("Show clusters"):
+                st.info("If the cluster '-1' exists that refers to the outliers that DBSCAN methods can not classify them")
+                st.info("We can change the parameters of 'eps' and 'min_samples' to change the number of clusters")
+                st.write(DBSCAN_dataset.Cluster.value_counts().to_frame())
+                st.success("The number of clusters is : {}".format(n_clusters_))
+            if st.checkbox("Show the results"):
+                a=st.selectbox("X:",df.columns)
+                b=st.selectbox("Y:",df.columns)
+                x=pd.DataFrame([df[a], df[b]]).transpose()
+                x=x.to_numpy()
+                outliers = DBSCAN_dataset[DBSCAN_dataset['Cluster']==-1]
+                fig2,axes = plt.subplots()
+                sns.scatterplot(a, b,data=DBSCAN_dataset[DBSCAN_dataset['Cluster']!=-1],hue='Cluster', ax=axes, palette='Set2', legend='full', s=200)
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                axes.scatter(outliers[a], outliers[b], s=10, label='outliers', c="k")
+                st.set_option('deprecation.showPyplotGlobalUse', False)
+                axes.legend()
+                plt.setp(axes.get_legend().get_texts(), fontsize='12')
+                plt.show()
+                st.pyplot(fig2)
 
 
     else:
-        st.info("Select your Dataset that contains NUMERICAL VALUE or ENCODED Variables")
+        st.info("Select your Dataset that has any type of attrubutes")
         
         
 
-        #=====================================================================================================
+        #============================================FIN=========================================================
        
